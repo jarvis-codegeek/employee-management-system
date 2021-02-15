@@ -6,6 +6,11 @@ const isUndefinedOrNull = (value) => {
     return value === "" || value === undefined || value === null
 }
 
+const isDate = (value) => {
+    return Object.prototype.toString.call(value) === "[object Date]"
+
+} 
+
 class AddEmployeeDetails extends React.Component {
     constructor(props){
         super(props)
@@ -14,43 +19,31 @@ class AddEmployeeDetails extends React.Component {
     state = {
         employeeName: '',
         employeeId: '',
-        date: new Date(),
+        dateOfBirth: null,
         gender: '',
         phone: '',
         designation: '',
         address: '',
         errorShow: false,
-        errorMessage: '',
-        isEmpty: false
+        errorMessage: ''
     }
 
-    handleChange = (data, type) => {
-        switch(type){
-            case 'empName':
-            return this.setState({employeeName: data.target.value})
-            case 'empId':
-            return this.setState({employeeId: data.target.value})
-            case 'gender':
-            return this.setState({gender: data.target.value})
-            case 'phone':
-            return this.setState({phone: data.target.value})
-            case 'designation':
-            return this.setState({designation: data.target.value})
-            case 'address':
-            return this.setState({address: data.target.value})
+    handleChange = (e) => {
+        if (isDate(e)) {
+            this.setState({dateOfBirth: e })
+        } else {
+            this.setState({
+                [e.target.id]: e.target.value
+            })
         }
     }
 
-    handleDateChange = (date) => {
-        this.setState({date: date})
-    } 
-
     handleValidation = () => {
-        const {employeeName, employeeId, gender, phone, designation, date, address} = this.state
+        const {employeeName, employeeId, gender, phone, designation, dateOfBirth, address} = this.state
         if(isUndefinedOrNull(employeeName) || isUndefinedOrNull(employeeId) || isUndefinedOrNull(gender) || isUndefinedOrNull(phone) || isUndefinedOrNull(designation) || isUndefinedOrNull(address)){
-            this.setState({errorShow: true, errorMessage: 'All fields are mandatory', isEmpty: true})
+           return true
         }else{
-            this.setState({errorShow: false, errorMessage: '', isEmpty: false})
+           return false
         }
     }
 
@@ -72,16 +65,16 @@ class AddEmployeeDetails extends React.Component {
     }
 
     handleSubmit = () => {
-        this.handleValidation()
-        if(!this.state.isEmpty){
-            const {employeeName, employeeId, gender, phone, designation, date, address} = this.state
+        let isEmpty = this.handleValidation()
+        if(!isEmpty){
+            const {employeeName, employeeId, gender, phone, designation, dateOfBirth, address} = this.state
             let requestObj = {
                 employeeName,
                 employeeId,
                 gender,
                 phone,
                 designation,
-                date,
+                dateOfBirth,
                 address
             }
             console.log(requestObj)
@@ -90,11 +83,11 @@ class AddEmployeeDetails extends React.Component {
     }
 
     handleClear = () => {
-        this.setState({employeeName: '', employeeId: '', gender: '', phone: '', designation: '', date: new Date(), address: ''})
+        this.setState({employeeName: '', employeeId: '', gender: '', phone: '', designation: '', dateOfBirth: new Date(), address: ''})
     }
 
     render() {
-        const {employeeName, employeeId, gender, phone, designation, date, address, errorShow} = this.state
+        const {employeeName, employeeId, gender, phone, designation, dateOfBirth, address, errorShow} = this.state
         return (
             <>
             {errorShow && this.renderErrorPopup()}
@@ -104,20 +97,20 @@ class AddEmployeeDetails extends React.Component {
                     <Card.Body>
                         <Row className="mb-2">
                             <Col md={2}><FormLabel>Employee Name</FormLabel></Col>
-                            <Col md={3}><FormControl type="text" value={employeeName} onChange={(data) => this.handleChange(data, 'empName')} /></Col>
+                            <Col md={3}><FormControl type="text" id="employeeName" value={employeeName} onChange={this.handleChange} /></Col>
                         </Row>
                         <Row className="mb-2">
                             <Col md={2}><FormLabel>Employee Id</FormLabel></Col>
-                            <Col md={3}><FormControl type="number" value={employeeId} onChange={(data) => this.handleChange(data, 'empId')} /></Col>
+                            <Col md={3}><FormControl type="number" id="employeeId" value={employeeId} onChange={this.handleChange} /></Col>
                         </Row>
                         <Row className="mb-2" >
                             <Col md={2}><FormLabel>Date of Birth</FormLabel></Col>
-                            <Col md={3}><CustomDatePicker handleDateChange={this.handleDateChange} selected={date}/></Col>
+                            <Col md={3}><CustomDatePicker handleDateChange={this.handleChange} selected={dateOfBirth}/></Col>
                         </Row>
                         <Row className="mb-2">
                             <Col md={2}><FormLabel>Gender</FormLabel></Col>
                             <Col md={3}>
-                                <FormControl as="select" value={gender} onChange={(data) =>this.handleChange(data, 'gender')} >
+                                <FormControl as="select"  id="gender" value={gender} onChange={this.handleChange} >
                                     <option></option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -126,16 +119,16 @@ class AddEmployeeDetails extends React.Component {
                         </Row>
                         <Row className="mb-2">
                             <Col md={2}><FormLabel>Phone</FormLabel></Col>
-                            <Col md={3}><FormControl type="text" value={phone} onChange={(data) => this.handleChange(data, 'phone')}/>
+                            <Col md={3}><FormControl type="text"  id="phone" value={phone} onChange={this.handleChange}/>
                             </Col>
                         </Row>
                         <Row className="mb-2">
                             <Col md={2}><FormLabel>Designation</FormLabel></Col>
-                            <Col md={3}><FormControl type="text" value={designation} onChange={(data) => this.handleChange(data, 'designation')}/></Col>
+                            <Col md={3}><FormControl type="text" id="designation" value={designation} onChange={this.handleChange}/></Col>
                         </Row>
                         <Row className="mb-2">
                             <Col md={2}><FormLabel>Address</FormLabel></Col>
-                            <Col md={3}><FormControl  as="textarea" value={address} onChange={(data) => this.handleChange(data, 'address')}/></Col>
+                            <Col md={3}><FormControl  as="textarea" id="address" value={address} onChange={this.handleChange}/></Col>
                         </Row>
                         <Row>
                             <Col md={3}></Col>

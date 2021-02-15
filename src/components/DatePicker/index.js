@@ -5,7 +5,7 @@ import "./datepicker.css"
 const CustomDatePicker = (props) => {
     return (
         <DatePicker 
-            id="customdatepicker"
+            id="dateOfBirth"
             onChange={props.handleDateChange}
             className="form-control datepicker-width"
             selected={props.selected}
