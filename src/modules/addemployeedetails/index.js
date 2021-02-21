@@ -1,6 +1,9 @@
 import React from 'react'
 import { Container, Card, Row, Col, FormControl, FormLabel, Button, Modal } from 'react-bootstrap'
-import CustomDatePicker from '../../components/DatePicker'
+import {connect} from 'react-redux';
+import CustomDatePicker from '../../components/DatePicker';
+import {addEmployee} from './reduxstore/actions'
+import {addEmployeeData} from './reduxstore/selectors'
 
 const isUndefinedOrNull = (value) => {
     return value === "" || value === undefined || value === null
@@ -28,6 +31,15 @@ class AddEmployeeDetails extends React.Component {
         errorMessage: ''
     }
 
+    componentDidUpdate(prevProps){
+        if(this.props.add_employee_data !== prevProps.add_employee_data){
+            const {add_employee_data} = this.props
+            if(add_employee_data.data.status === "Saved"){
+                this.setState({errorShow: true, errorMessage: add_employee_data.data.message })
+            }
+        }
+    }
+
     handleChange = (e) => {
         if (isDate(e)) {
             this.setState({dateOfBirth: e })
@@ -40,7 +52,7 @@ class AddEmployeeDetails extends React.Component {
 
     handleValidation = () => {
         const {employeeName, employeeId, gender, phone, designation, dateOfBirth, address} = this.state
-        if(isUndefinedOrNull(employeeName) || isUndefinedOrNull(employeeId) || isUndefinedOrNull(gender) || isUndefinedOrNull(phone) || isUndefinedOrNull(designation) || isUndefinedOrNull(address)){
+        if(isUndefinedOrNull(employeeName) || isUndefinedOrNull(employeeId) || isUndefinedOrNull(gender) || isUndefinedOrNull(phone) || isUndefinedOrNull(designation) || isUndefinedOrNull(address) || isUndefinedOrNull(dateOfBirth)){
            return true
         }else{
            return false
@@ -77,13 +89,14 @@ class AddEmployeeDetails extends React.Component {
                 dateOfBirth,
                 address
             }
-            console.log(requestObj)
+            this.props.addEmployee(requestObj)
+            this.handleClear()
         }
         
     }
 
     handleClear = () => {
-        this.setState({employeeName: '', employeeId: '', gender: '', phone: '', designation: '', dateOfBirth: new Date(), address: ''})
+        this.setState({employeeName: '', employeeId: '', gender: '', phone: '', designation: '', dateOfBirth: null, address: ''})
     }
 
     render() {
@@ -143,4 +156,10 @@ class AddEmployeeDetails extends React.Component {
     }
 }
 
-export default AddEmployeeDetails
+const mapStateToProps = (state) => {
+    return{
+        add_employee_data: addEmployeeData(state) 
+    }
+}
+
+export default connect(mapStateToProps,{addEmployee})(AddEmployeeDetails)

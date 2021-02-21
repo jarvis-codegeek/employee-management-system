@@ -1,6 +1,8 @@
-import React from 'react'
+import React, {lazy, Suspense} from 'react';
+import {Route, Switch} from 'react-router-dom'
 import './App.css';
-import AddEmployeeDetails from './modules/addemployeedetails'
+import AddEmployeeDetails from './modules/addemployeedetails';
+import ViewEmployeeDetails from './modules/viewemployeedetails';
 import Header from './components/Header';
 
 class App extends React.Component {
@@ -8,7 +10,10 @@ class App extends React.Component {
     return (
       <div>
         <Header />
-        <AddEmployeeDetails />
+        <Switch>
+          <Route path="/addEmployee" component={AddEmployeeDetails} />
+          <Route path="/viewEmployeeList" component={ViewEmployeeDetails} />
+        </Switch>
       </div>
     )
   }
