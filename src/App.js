@@ -1,5 +1,5 @@
 import React, {lazy, Suspense} from 'react';
-import {Route, Switch} from 'react-router-dom'
+import {Route, Switch, withRouter} from 'react-router-dom'
 import './App.css';
 import AddEmployeeDetails from './modules/addemployeedetails';
 import ViewEmployeeDetails from './modules/viewemployeedetails';
@@ -19,4 +19,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withRouter(App);

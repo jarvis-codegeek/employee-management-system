@@ -9,3 +9,12 @@ export const addEmployeeDetails = (requestObj) => {
 export const getEmployeeList = () => {
     return axios.get(url)
 }
+
+
+export const deleteEmployeeApi = (id) => {    
+    return axios.delete(url + `/${id}`)
+}
+
+export const updateEmployeeDetails = (requestObj, id) => {
+    return axios.put(url+`/${id}`, requestObj)
+}

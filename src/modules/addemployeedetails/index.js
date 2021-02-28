@@ -2,17 +2,12 @@ import React from 'react'
 import { Container, Card, Row, Col, FormControl, FormLabel, Button, Modal } from 'react-bootstrap'
 import {connect} from 'react-redux';
 import CustomDatePicker from '../../components/DatePicker';
-import {addEmployee} from './reduxstore/actions'
-import {addEmployeeData} from './reduxstore/selectors'
+import {addEmployee, updateEmployeeDetails} from './reduxstore/actions';
+import {updateEmployee} from '../viewemployeedetails/reduxstore/actions';
+import {addEmployeeData, updateEmployeeDetailsData} from './reduxstore/selectors'
+import {isUndefinedOrNull, isDate} from '../../utils'
+import {updateEmployeeData, updateFlagData} from '../viewemployeedetails/reduxstore/selectors'
 
-const isUndefinedOrNull = (value) => {
-    return value === "" || value === undefined || value === null
-}
-
-const isDate = (value) => {
-    return Object.prototype.toString.call(value) === "[object Date]"
-
-} 
 
 class AddEmployeeDetails extends React.Component {
     constructor(props){
@@ -31,6 +26,21 @@ class AddEmployeeDetails extends React.Component {
         errorMessage: ''
     }
 
+    componentDidMount(){
+        const {updateFlag, dataToBeUpdated} = this.props
+        if(updateFlag){
+            this.setState({
+                employeeName: dataToBeUpdated.employeeName,
+                employeeId: dataToBeUpdated.employeeId,
+                dateOfBirth: new Date(dataToBeUpdated.dateOfBirth),
+                gender: dataToBeUpdated.gender,
+                phone: dataToBeUpdated.phone,
+                designation: dataToBeUpdated.designation,
+                address: dataToBeUpdated.address
+            })
+        }
+    }
+
     componentDidUpdate(prevProps){
         if(this.props.add_employee_data !== prevProps.add_employee_data){
             const {add_employee_data} = this.props
@@ -38,6 +48,17 @@ class AddEmployeeDetails extends React.Component {
                 this.setState({errorShow: true, errorMessage: add_employee_data.data.message })
             }
         }
+
+        if(this.props.update_result !== prevProps.update_result){
+            const {update_result} = this.props
+            if(update_result.data.status === "Updated"){
+                this.setState({errorShow: true, errorMessage: update_result.data.message })
+            }
+        }
+    }
+
+    componentWillUnmount(){
+        this.props.updateEmployee(null, false)
     }
 
     handleChange = (e) => {
@@ -74,12 +95,14 @@ class AddEmployeeDetails extends React.Component {
 
     handleClose = () => {
         this.setState({errorShow: false})
+        this.props.history.push('/viewEmployeeList')
     }
 
     handleSubmit = () => {
         let isEmpty = this.handleValidation()
         if(!isEmpty){
-            const {employeeName, employeeId, gender, phone, designation, dateOfBirth, address} = this.state
+            const {employeeName, employeeId, gender, phone, designation, dateOfBirth, address} = this.state;
+            const {updateFlag, dataToBeUpdated} = this.props;
             let requestObj = {
                 employeeName,
                 employeeId,
@@ -89,8 +112,12 @@ class AddEmployeeDetails extends React.Component {
                 dateOfBirth,
                 address
             }
-            this.props.addEmployee(requestObj)
-            this.handleClear()
+            if(updateFlag){
+                this.props.updateEmployeeDetails(requestObj, dataToBeUpdated._id)
+            }else{            
+                this.props.addEmployee(requestObj)
+            }
+            this.handleClear()           
         }
         
     }
@@ -101,11 +128,12 @@ class AddEmployeeDetails extends React.Component {
 
     render() {
         const {employeeName, employeeId, gender, phone, designation, dateOfBirth, address, errorShow} = this.state
+        const {updateFlag} = this.props
         return (
             <>
             {errorShow && this.renderErrorPopup()}
             <Container>
-                <h3> Add Employee </h3>
+                <h3> { updateFlag ?  'Update Employee Data' : 'Add Employee Data' } </h3>
                 <Card>
                     <Card.Body>
                         <Row className="mb-2">
@@ -146,7 +174,7 @@ class AddEmployeeDetails extends React.Component {
                         <Row>
                             <Col md={3}></Col>
                             <Col md={'auto'}><Button variant="outline-primary" size="sm" onClick={this.handleClear}>Clear</Button></Col>
-                            <Col md={'auto'}><Button variant="primary" size="sm" onClick={this.handleSubmit}>Submit</Button></Col>
+                            <Col md={'auto'}><Button variant="primary" size="sm" onClick={this.handleSubmit}>{updateFlag ? 'Update' : 'Submit'}</Button></Col>
                         </Row>
                     </Card.Body>
                 </Card>
@@ -158,8 +186,11 @@ class AddEmployeeDetails extends React.Component {
 
 const mapStateToProps = (state) => {
     return{
-        add_employee_data: addEmployeeData(state) 
+        add_employee_data: addEmployeeData(state),
+        dataToBeUpdated: updateEmployeeData(state),
+        updateFlag: updateFlagData(state),
+        update_result: updateEmployeeDetailsData(state)
     }
 }
 
-export default connect(mapStateToProps,{addEmployee})(AddEmployeeDetails)
+export default connect(mapStateToProps,{addEmployee, updateEmployeeDetails, updateEmployee})(AddEmployeeDetails)
