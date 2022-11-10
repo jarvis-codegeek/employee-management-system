@@ -8,13 +8,24 @@ import Header from './components/Header';
 class App extends React.Component {
   render() {
     return (
-      <div>
-        <Header />
-        <Switch>
-          <Route path="/addEmployee" component={AddEmployeeDetails} />
-          <Route path="/viewEmployeeList" component={ViewEmployeeDetails} />
-        </Switch>
-      </div>
+      <Navbar>
+      <Container>
+        <Navbar.Brand href="#home">Navbar with text</Navbar.Brand>
+        <Navbar.Toggle />
+        <Navbar.Collapse className="justify-content-end">
+          <NavDropdown title="SJ" id="navbarScrollingDropdown">
+              <NavDropdown.Item href="#action3">Action</NavDropdown.Item>
+              <NavDropdown.Item href="#action4">
+                Another action
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#action5">
+                Something else here
+              </NavDropdown.Item>
+            </NavDropdown>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
     )
   }
 }
